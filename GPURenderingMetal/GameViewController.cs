@@ -18,17 +18,20 @@ namespace GPURenderingMetal
         /// </summary>
         private struct VertexAttribute
         {
-            public Vector2 Position;            // 頂点位置
+            public Vector3 Position;            // 頂点位置
             public Vector2 TextureCoordinate;   // テクスチャ座標
         }
 
         /// <summary>
         /// 頂点データ以外の構造体を定義します。
         /// </summary>
+        [StructLayout(LayoutKind.Explicit)]
         private struct Uniform
         {
+            [FieldOffset(0)]
             public Vector2i ViewportSize;   // ビューポートサイズ
-            public Matrix3 ModelMatrix;     // モデル行列
+            [FieldOffset(16)]
+            public Matrix4 ModelMatrix;     // モデル行列 16byteのメモリアライメントになるように指定
         }
 
         #region 定数データ
@@ -46,16 +49,16 @@ namespace GPURenderingMetal
         /// </summary>
         private static readonly VertexAttribute[] vertexData = {
             new VertexAttribute() { // 左下
-                Position = new Vector2(-TextureWidth / 2, -TextureHeight / 2), TextureCoordinate = new Vector2(0.0f, 1.0f)
+                Position = new Vector3(-TextureWidth / 2, -TextureHeight / 2, 0.0f), TextureCoordinate = new Vector2(0.0f, 1.0f)
             },
             new VertexAttribute() { // 左上
-                Position = new Vector2(-TextureWidth / 2,  TextureHeight / 2), TextureCoordinate = new Vector2(0.0f, 0.0f)
+                Position = new Vector3(-TextureWidth / 2,  TextureHeight / 2, 0.0f), TextureCoordinate = new Vector2(0.0f, 0.0f)
             },
             new VertexAttribute() { // 右下
-                Position = new Vector2(TextureWidth / 2, -TextureHeight / 2), TextureCoordinate = new Vector2(1.0f, 1.0f)
+                Position = new Vector3(TextureWidth / 2, -TextureHeight / 2, 0.0f), TextureCoordinate = new Vector2(1.0f, 1.0f)
             },
             new VertexAttribute() { // 右上
-                Position = new Vector2(TextureWidth / 2,  TextureHeight / 2), TextureCoordinate = new Vector2(1.0f, 0.0f)
+                Position = new Vector3(TextureWidth / 2,  TextureHeight / 2, 0.0f), TextureCoordinate = new Vector2(1.0f, 0.0f)
             }
         };
         #endregion
@@ -308,12 +311,13 @@ namespace GPURenderingMetal
         /// </summary>
         private void Update()
         {
-            Matrix3 translationMatrix = MakeTranslationMatrix((float)move.X, (float)move.Y);
-            Matrix3 rotationMatrix = MakeRotationMatrix((float)rotate);
-            Matrix3 scaleMatrix = MakeScaleMatrix((float)scale, (float)scale);
+            Matrix4 translationMatrix = Matrix4.CreateTranslation((float)move.X, (float)move.Y, 0.0f);
+            // UIRotationGestureRecognizerは時計回りが正
+            // CreateRotationZは反時計回りが正
+            Matrix4 rotationMatrix = Matrix4.CreateRotationZ((float)-rotate);
+            Matrix4 scaleMatrix = Matrix4.Scale((float)scale, (float)scale, 1.0f);
 
-            Matrix3.Multiply(ref translationMatrix, ref rotationMatrix, out uniform.ModelMatrix);
-            Matrix3.Multiply(ref uniform.ModelMatrix, ref scaleMatrix, out uniform.ModelMatrix);
+            uniform.ModelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
 
             // データをバッファにコピー
             CopyToBuffer(uniform, uniformBuffer);
@@ -373,53 +377,6 @@ namespace GPURenderingMetal
             commandBuffer.Commit();
         }
         #endregion
-
-        /// <summary>
-        /// 二次元での並行移動行列を作成します。
-        /// </summary>
-        /// <param name="x">x方向移動量</param>
-        /// <param name="y">y方向移動量</param>
-        /// <returns></returns>
-        public static Matrix3 MakeTranslationMatrix(float x, float y)
-        {
-            Matrix3 matrix = Matrix3.Identity;
-
-            matrix.R2C0 = x;
-            matrix.R2C1 = y;
-
-            return matrix;
-        }
-        /// <summary>
-        /// 二次元での回転行列を作成します。
-        /// </summary>
-        /// <param name="angle">回転量</param>
-        /// <returns></returns>
-        public static Matrix3 MakeRotationMatrix(float angle)
-        {
-            Matrix3 matrix = new Matrix3(
-                (float)Math.Cos(angle), -(float)Math.Sin(angle), 0.0f,
-                (float)Math.Sin(angle), (float)Math.Cos(angle), 0.0f,
-                0.0f, 0.0f, 1.0f
-            );
-
-            return matrix;
-        }
-        /// <summary>
-        /// 二次元での拡大行列を作成します。
-        /// </summary>
-        /// <param name="xScale">x方向拡大量</param>
-        /// <param name="yScale">y方向拡大量</param>
-        /// <returns></returns>
-        public static Matrix3 MakeScaleMatrix(float xScale, float yScale)
-        {
-            Matrix3 matrix = new Matrix3(
-                xScale, 0.0f, 0.0f,
-                0.0f, yScale, 0.0f,
-                0.0f, 0.0f, 1.0f
-            );
-
-            return matrix;
-        }
 
         /// <summary>
         /// 構造体をバッファにコピーします。

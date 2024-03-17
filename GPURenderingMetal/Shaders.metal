@@ -6,23 +6,23 @@ using namespace metal;
 /// 頂点データの構造体を定義します。
 typedef struct
 {
-    float2 Position;            // 頂点位置
-    float2 TextureCoordinate;   // テクスチャ座標
+    // C#でVector3とVector2を連続したバイト列として、変換した後GPUに渡している
+    
+    // float3は16byteのため、C#のバイト表現と合わない
+    // そのため、12byteのpacked_float3を使用
+    packed_float3 Position;             // 頂点位置
+    // float2のメモリアライメントは8byteになっていて、C#のバイト表現と合わない
+    // そのため、メモリアライメントは4byteのfloat2を使用
+    packed_float2 TextureCoordinate;    // テクスチャ座標
 } VertexAttribute;
 
 /// 頂点データ以外の構造体を定義します。
 typedef struct
 {
     int2 ViewportSize;              // ビューポートサイズ
-    // 本当はfloat3x3を使用したい
-    // ・C#でMatrix3をバイト列に変換すると36byte
-    // ・float3x3は48byte
-    // 上記理由からメモリ配置が合わなくなってしまう
-    // そこでpacked_float3を使用してC#のメモリ配置と合わせている
-    // ちなみにfloat3も16byteのため使用できない
-    packed_float3 ModelMatrixRow1;  // モデル行列 1行目
-    packed_float3 ModelMatrixRow2;  // モデル行列 2行目
-    packed_float3 ModelMatrixRow3;  // モデル行列 3行目
+    // float4x4のメモリアライメントは16byteになっていて、metalには他の行列表現がない
+    // そのため、C#側でバイト列を作成した際に、モデル行列のメモリアライメントは16byteになるように指定する
+    float4x4 ModelMatrix;           // モデル行列
 } Uniform;
 
 /// 頂点シェーダの出力用(フラグメントシェーダ入力用)の構造体を定義します。
@@ -59,18 +59,17 @@ vertex RasterizerData sample_vertex(uint vertexID [[vertex_id]],
     RasterizerData out;
     
     // 頂点データから頂点座標を取得
-    float2 pixelSpacePosition = vertices[vertexID].Position;
-    // モデル行列を作成
-    float3x3 modelMatrix = float3x3(uniform.ModelMatrixRow1, uniform.ModelMatrixRow2, uniform.ModelMatrixRow3);
+    packed_float3 packedPos = vertices[vertexID].Position;
+    float3 pixelSpacePosition = float3(packedPos.x, packedPos.y, packedPos.z);
     // 平行移動・回転・スケールを適用するためにモデル行列をかける
-    pixelSpacePosition = (modelMatrix * float3(pixelSpacePosition, 1.0)).xy;
+    pixelSpacePosition = (uniform.ModelMatrix * float4(pixelSpacePosition, 1.0)).xyz;
     
     // float型にキャスト
     float2 viewportSize = float2(uniform.ViewportSize);
 
     // 頂点座標(ピクセル空間)をビューポートサイズの半分で割って、クリップ空間の座標に変換する
     out.position = float4(0.0, 0.0, 0.0, 1.0);
-    out.position.xy = pixelSpacePosition / (viewportSize / 2.0);
+    out.position.xy = pixelSpacePosition.xy / (viewportSize / 2.0);
     
     // テクスチャ座標を出力に設定
     out.textureCoordinate = vertices[vertexID].TextureCoordinate;
