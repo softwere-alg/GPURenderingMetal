@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1706.7
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPURenderingMetal", "GPURenderingMetal\GPURenderingMetal.csproj", "{BA7377C0-5E9D-4B8E-B042-B8E274D3EED4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|iPhoneSimulator = Debug|iPhoneSimulator
+		Release|iPhone = Release|iPhone
+		Release|iPhoneSimulator = Release|iPhoneSimulator
+		Debug|iPhone = Debug|iPhone
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA7377C0-5E9D-4B8E-B042-B8E274D3EED4}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{BA7377C0-5E9D-4B8E-B042-B8E274D3EED4}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{BA7377C0-5E9D-4B8E-B042-B8E274D3EED4}.Release|iPhone.ActiveCfg = Release|iPhone
+		{BA7377C0-5E9D-4B8E-B042-B8E274D3EED4}.Release|iPhone.Build.0 = Release|iPhone
+		{BA7377C0-5E9D-4B8E-B042-B8E274D3EED4}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{BA7377C0-5E9D-4B8E-B042-B8E274D3EED4}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+		{BA7377C0-5E9D-4B8E-B042-B8E274D3EED4}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{BA7377C0-5E9D-4B8E-B042-B8E274D3EED4}.Debug|iPhone.Build.0 = Debug|iPhone
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2E05DA14-AFC0-41AB-9C35-FD0C1C8DB066}
+	EndGlobalSection
+EndGlobal
