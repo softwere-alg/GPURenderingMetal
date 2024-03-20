@@ -84,37 +84,37 @@ namespace GPURenderingMetal
         /// <summary>
         /// 使用するGPU
         /// </summary>
-        IMTLDevice device;
+        private IMTLDevice device;
 
         /// <summary>
         /// コマンドキュー
         /// </summary>
-        IMTLCommandQueue commandQueue;
+        private IMTLCommandQueue commandQueue;
 
         /// <summary>
         /// パイプラインステート
         /// </summary>
-        IMTLRenderPipelineState pipelineState;
+        private IMTLRenderPipelineState pipelineState;
 
         /// <summary>
         /// 頂点データバッファ
         /// </summary>
-        IMTLBuffer vertexBuffer;
+        private IMTLBuffer vertexBuffer;
 
         /// <summary>
         /// テクスチャ
         /// </summary>
-        IMTLTexture texture;
+        private IMTLTexture texture;
 
         /// <summary>
         /// ユニフォームデータ
         /// </summary>
-        Uniform uniform = new Uniform();
+        private Uniform uniform = new Uniform();
 
         /// <summary>
         /// ユニフォームデータバッファ
         /// </summary>
-        IMTLBuffer uniformBuffer;
+        private IMTLBuffer uniformBuffer;
 
         /// <summary>
         /// 移動量
