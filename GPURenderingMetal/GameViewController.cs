@@ -31,7 +31,9 @@ namespace GPURenderingMetal
             [FieldOffset(0)]
             public Vector2i ViewportSize;   // ビューポートサイズ
             [FieldOffset(16)]
-            public Matrix4 ModelMatrix;     // モデル行列 16byteのメモリアライメントになるように指定
+            public Matrix4 ModelMatrix;     // モデル行列 16byte目から配置されるように指定
+            [FieldOffset(80)]
+            public Matrix4 ViewMatrix;      // ビュー行列 80byte目から配置されるように指定
         }
 
         #region 定数データ
@@ -311,13 +313,15 @@ namespace GPURenderingMetal
         /// </summary>
         private void Update()
         {
-            Matrix4 translationMatrix = Matrix4.CreateTranslation((float)move.X, (float)move.Y, 0.0f);
+            Matrix4 translationMatrix = Matrix4.CreateTranslation(0.0f, 0.0f, 0.0f);
             // UIRotationGestureRecognizerは時計回りが正
             // CreateRotationZは反時計回りが正
             Matrix4 rotationMatrix = Matrix4.CreateRotationZ((float)-rotate);
             Matrix4 scaleMatrix = Matrix4.Scale((float)scale, (float)scale, 1.0f);
 
             uniform.ModelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+
+            uniform.ViewMatrix = Matrix4.CreateTranslation((float)move.X, (float)move.Y, 0.0f);
 
             // データをバッファにコピー
             CopyToBuffer(uniform, uniformBuffer);
